@@ -57,5 +57,34 @@
     <input type="text" placeholder="Ask anything" />
   </div>
 
+  <script>
+  const input = document.querySelector("input");
+
+  input.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      const question = input.value.trim();
+      if (!question) return;
+
+      fetch("https://t5-model-442797114823.us-central1.run.app/ask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query: question })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert("Answer: " + data.response);  // You can style this later
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        alert("Something went wrong!");
+      });
+
+      input.value = ""; // Clear input
+    }
+  });
+</script>
+
 </body>
 </html>
