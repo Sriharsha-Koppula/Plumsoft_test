@@ -111,11 +111,11 @@
       appendMessage(text, "user");
       input.value = "";
 
-      fetch("http://35.200.240.100:8080/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: text })
-      })
+      fetch("https://50b5-35-200-240-100.ngrok-free.app/ask", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ query: text })
+})
       .then(res => res.json())
       .then(data => {
         const reply = data.response || "❌ No response received.";
