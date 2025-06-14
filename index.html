@@ -14,7 +14,6 @@
       height: 100vh;
     }
 
-    /* ─── Header ─────────────────────────────────────── */
     .header {
       background: #4b0082;
       color: white;
@@ -23,12 +22,12 @@
       font-size: 22px;
     }
 
-    /* ► SHINY TEXT EFFECT ◄ */
     .shiny {
       position: relative;
-      display: inline-block;   /* keeps pseudo-element sized to text */
-      overflow: hidden;        /* hide excess gradient */
+      display: inline-block;
+      overflow: hidden;
     }
+
     .shiny::before {
       content: '';
       position: absolute;
@@ -42,27 +41,96 @@
         rgba(255, 255, 255, 0.7) 50%,
         transparent 100%
       );
-      transform: skewX(-20deg);   /* adds a slanted highlight */
+      transform: skewX(-20deg);
       animation: shine 2.5s linear infinite;
     }
+
     @keyframes shine {
-      0%   { left: -100%; }
+      0% { left: -100%; }
       100% { left: 100%; }
     }
 
-    /* ─── Chat layout (unchanged) ────────────────────── */
-    .chat-box { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; }
-    .message  { margin: 12px 0; padding: 12px 16px; border-radius: 16px; max-width: 75%; line-height: 1.5; }
-    .user     { background: #d1e7ff; align-self: flex-end; }
-    .bot      { background: #ffffff; align-self: flex-start; border: 1px solid #ddd; }
-    .input-container { display: flex; padding: 10px; border-top: 1px solid #ccc; background: white; }
-    .input-container input  { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 16px; }
-    .input-container button { margin-left: 8px; padding: 12px 20px; background: #4b0082; color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 16px; }
+    .launch-wrapper {
+      text-align: center;
+      background-color: #fff3cd;
+      color: #856404;
+      padding: 20px;
+    }
+
+    #countdown {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .chat-box {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      margin: 12px 0;
+      padding: 12px 16px;
+      border-radius: 16px;
+      max-width: 75%;
+      line-height: 1.5;
+    }
+
+    .user {
+      background: #d1e7ff;
+      align-self: flex-end;
+    }
+
+    .bot {
+      background: #ffffff;
+      align-self: flex-start;
+      border: 1px solid #ddd;
+    }
+
+    .input-container {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+      background: white;
+    }
+
+    .input-container input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      outline: none;
+      font-size: 16px;
+    }
+
+    .input-container button {
+      margin-left: 8px;
+      padding: 12px 20px;
+      background: #4b0082;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
 
   <div class="header"><span class="shiny">💬 Welcome to Plumsoft Assistant</span></div>
+
+  <div class="launch-wrapper">
+    <h2>🚀 We are getting ready to launch</h2>
+    <div id="countdown">
+      <span id="days">09</span>d :
+      <span id="hours">09</span>h :
+      <span id="minutes">09</span>m :
+      <span id="seconds">09</span>s
+    </div>
+  </div>
 
   <div class="chat-box" id="chatBox"></div>
 
@@ -78,7 +146,7 @@
 
   <script>
     const chatBox = document.getElementById("chatBox");
-    const input   = document.getElementById("userInput");
+    const input = document.getElementById("userInput");
 
     function appendMessage(text, sender) {
       const msg = document.createElement("div");
@@ -98,8 +166,8 @@
 
       const selectedModel = document.getElementById("modelSelector").value;
       const apiEndpoint = selectedModel === "t5"
-        ? "https://8363-34-93-182-137.ngrok-free.app/ask-t5"   // 🔁 Replace with T5 endpoint
-        : "https://50b5-35-200-240-100.ngrok-free.app/ask";    // 🔁 Mistral endpoint
+        ? "https://8363-34-93-182-137.ngrok-free.app/ask-t5"
+        : "https://50b5-35-200-240-100.ngrok-free.app/ask";
 
       fetch(apiEndpoint, {
         method: "POST",
@@ -116,6 +184,30 @@
         appendMessage("❌ Failed to reach the assistant.", "bot");
       });
     }
+
+    // Countdown Timer
+    const launchDate = new Date("July 1, 2025 00:00:00").getTime();
+
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = launchDate - now;
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById("days").textContent = days.toString().padStart(2, "0");
+      document.getElementById("hours").textContent = hours.toString().padStart(2, "0");
+      document.getElementById("minutes").textContent = minutes.toString().padStart(2, "0");
+      document.getElementById("seconds").textContent = seconds.toString().padStart(2, "0");
+
+      if (distance < 0) {
+        clearInterval(timer);
+        document.querySelector(".launch-wrapper").innerHTML = "<h2>🎉 We have launched!</h2>";
+      }
+    }, 1000);
   </script>
+
 </body>
 </html>
