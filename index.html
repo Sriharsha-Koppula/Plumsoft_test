@@ -133,8 +133,7 @@
   </form>
 
   <script>
-  const chatBox = document.getElementById("chatBox");
-  const input = document.getElementById("userInput");
+  let msgCounter = 0; // keeps track of message blocks
 
   function appendMessage(text, sender, id = null) {
     const msg = document.createElement("div");
@@ -156,10 +155,10 @@
     const selectedModel = document.getElementById("modelSelector").value;
     const apiEndpoint = selectedModel === "t5"
       ? "https://8363-34-93-182-137.ngrok-free.app/ask-t5"
-      : "https://12cc-34-47-220-193.ngrok-free.app/ask-mistral-stream"; // Use streaming endpoint
+      : "https://12cc-34-47-220-193.ngrok-free.app/ask-mistral-stream"; // streaming
 
-    const typingId = "typing-spinner";
-    appendMessage(`<span id="response-stream"></span><span class="spinner"></span>`, "bot", typingId);
+    const responseId = `response-${msgCounter++}`;
+    appendMessage(`<span id="${responseId}"></span><span class="spinner"></span>`, "bot");
 
     const startTime = performance.now();
 
@@ -172,7 +171,7 @@
       const reader = res.body.getReader();
       const decoder = new TextDecoder("utf-8");
 
-      const responseSpan = document.getElementById("response-stream");
+      const responseSpan = document.getElementById(responseId);
       let finalText = "";
 
       while (true) {
@@ -187,17 +186,14 @@
 
       const endTime = performance.now();
       const duration = ((endTime - startTime) / 1000).toFixed(2);
-
-      const typingElement = document.getElementById(typingId);
-      if (typingElement) {
-        typingElement.innerHTML += `<br><br>⏱️ <i>Response time: ${duration} seconds</i>`;
-      }
+      responseSpan.innerHTML += `<br><br>⏱️ <i>Response time: ${duration} seconds</i>`;
     })
     .catch(err => {
       console.error("Streaming error:", err);
-      const typingElement = document.getElementById(typingId);
-      if (typingElement) typingElement.remove();
-      appendMessage("❌ Failed to reach the assistant.", "bot");
+      const responseSpan = document.getElementById(responseId);
+      if (responseSpan) {
+        responseSpan.innerHTML = "❌ Failed to reach the assistant.";
+      }
     });
   }
 </script>
