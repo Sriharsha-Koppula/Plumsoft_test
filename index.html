@@ -35,12 +35,7 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(
-        120deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.7) 50%,
-        transparent 100%
-      );
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%);
       transform: skewX(-20deg);
       animation: shine 2.5s linear infinite;
     }
@@ -48,19 +43,6 @@
     @keyframes shine {
       0% { left: -100%; }
       100% { left: 100%; }
-    }
-
-    .launch-wrapper {
-      text-align: center;
-      background-color: #fff3cd;
-      color: #856404;
-      padding: 20px;
-    }
-
-    #countdown {
-      font-size: 24px;
-      font-weight: bold;
-      margin-top: 10px;
     }
 
     .chat-box {
@@ -73,13 +55,13 @@
 
     .spinner {
       display: inline-block;
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border: 3px solid #ccc;
-      border-top: 3px solid #333;
+      border-top: 3px solid #4b0082;
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin-left: 10px;
+      margin-left: 8px;
     }
 
     @keyframes spin {
@@ -154,10 +136,11 @@
     const chatBox = document.getElementById("chatBox");
     const input = document.getElementById("userInput");
 
-    function appendMessage(text, sender) {
+    function appendMessage(text, sender, id = null) {
       const msg = document.createElement("div");
       msg.classList.add("message", sender);
       msg.innerHTML = text.replace(/\n/g, "<br>");
+      if (id) msg.id = id;
       chatBox.appendChild(msg);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
@@ -175,6 +158,9 @@
         ? "https://8363-34-93-182-137.ngrok-free.app/ask-t5"
         : "https://b7cc-34-47-220-193.ngrok-free.app/ask-mistral";
 
+      const typingId = "typing-spinner";
+      appendMessage(`Typing<span class="spinner"></span>`, "bot", typingId);
+
       const startTime = performance.now();
 
       fetch(apiEndpoint, {
@@ -186,12 +172,18 @@
       .then(data => {
         const endTime = performance.now();
         const duration = ((endTime - startTime) / 1000).toFixed(2);
-
         const reply = data.response || "❌ No response received.";
+
+        const typingElement = document.getElementById(typingId);
+        if (typingElement) typingElement.remove();
+
         appendMessage(`${reply}<br><br>⏱️ <i>Response time: ${duration} seconds</i>`, "bot");
       })
       .catch(err => {
         console.error("Error:", err);
+        const typingElement = document.getElementById(typingId);
+        if (typingElement) typingElement.remove();
+
         appendMessage("❌ Failed to reach the assistant.", "bot");
       });
     }
