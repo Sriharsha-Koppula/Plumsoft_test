@@ -127,13 +127,17 @@
     <option value="t5">T5</option>
   </select>
 
-  <form class="input-container" onsubmit="sendMessage(event)">
-    <input type="text" id="userInput" placeholder="Ask anything about Plumsoft..." autocomplete="off" />
-    <button type="submit">Send</button>
+  <form class="input-container" id="chatForm">
+  <input type="text" id="userInput" placeholder="Ask anything about Plumsoft..." autocomplete="off" />
+  <button type="submit">Send</button>
   </form>
 
+
   <script>
-  let msgCounter = 0; // keeps track of message blocks
+  let msgCounter = 0;
+
+  const chatBox = document.getElementById("chatBox");
+  const input = document.getElementById("userInput");
 
   function appendMessage(text, sender, id = null) {
     const msg = document.createElement("div");
@@ -155,7 +159,7 @@
     const selectedModel = document.getElementById("modelSelector").value;
     const apiEndpoint = selectedModel === "t5"
       ? "https://8363-34-93-182-137.ngrok-free.app/ask-t5"
-      : "https://12cc-34-47-220-193.ngrok-free.app/ask-mistral-stream"; // streaming
+      : "https://12cc-34-47-220-193.ngrok-free.app/ask-mistral-stream";
 
     const responseId = `response-${msgCounter++}`;
     appendMessage(`<span id="${responseId}"></span><span class="spinner"></span>`, "bot");
@@ -170,7 +174,6 @@
     .then(async (res) => {
       const reader = res.body.getReader();
       const decoder = new TextDecoder("utf-8");
-
       const responseSpan = document.getElementById(responseId);
       let finalText = "";
 
@@ -191,12 +194,16 @@
     .catch(err => {
       console.error("Streaming error:", err);
       const responseSpan = document.getElementById(responseId);
-      if (responseSpan) {
-        responseSpan.innerHTML = "❌ Failed to reach the assistant.";
-      }
+      responseSpan.innerHTML = "❌ Failed to reach the assistant.";
     });
   }
+
+  // Attach submit handler after DOM loads
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("chatForm").addEventListener("submit", sendMessage);
+  });
 </script>
+
 
 </body>
 </html>
