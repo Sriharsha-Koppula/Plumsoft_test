@@ -172,15 +172,6 @@
   appendMessage(text, "user");
   input.value = "";
 
-      // Show typing with spinner
-  const botMsg = document.createElement("div");
-  botMsg.classList.add("message", "bot");
-  botMsg.setAttribute("id", "typing");
-  botMsg.innerHTML = `Assistant is typing <span class="spinner"></span>`;
-  chatBox.appendChild(botMsg);
-  chatBox.scrollTop = chatBox.scrollHeight;
-
-
       const selectedModel = document.getElementById("modelSelector").value;
       const apiEndpoint = selectedModel === "t5"
         ? "https://8363-34-93-182-137.ngrok-free.app/ask-t5"
