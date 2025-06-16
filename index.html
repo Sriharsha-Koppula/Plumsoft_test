@@ -133,61 +133,74 @@
   </form>
 
   <script>
-    const chatBox = document.getElementById("chatBox");
-    const input = document.getElementById("userInput");
+  const chatBox = document.getElementById("chatBox");
+  const input = document.getElementById("userInput");
 
-    function appendMessage(text, sender, id = null) {
-      const msg = document.createElement("div");
-      msg.classList.add("message", sender);
-      msg.innerHTML = text.replace(/\n/g, "<br>");
-      if (id) msg.id = id;
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+  function appendMessage(text, sender, id = null) {
+    const msg = document.createElement("div");
+    msg.classList.add("message", sender);
+    msg.innerHTML = text.replace(/\n/g, "<br>");
+    if (id) msg.id = id;
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
 
-    function sendMessage(e) {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (!text) return;
+  function sendMessage(e) {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
 
-      appendMessage(text, "user");
-      input.value = "";
+    appendMessage(text, "user");
+    input.value = "";
 
-      const selectedModel = document.getElementById("modelSelector").value;
-      const apiEndpoint = selectedModel === "t5"
-        ? "https://8363-34-93-182-137.ngrok-free.app/ask-t5"
-        : "https://12cc-34-47-220-193.ngrok-free.app/ask-mistral";
+    const selectedModel = document.getElementById("modelSelector").value;
+    const apiEndpoint = selectedModel === "t5"
+      ? "https://8363-34-93-182-137.ngrok-free.app/ask-t5"
+      : "https://12cc-34-47-220-193.ngrok-free.app/ask-mistral-stream"; // Use streaming endpoint
 
-      const typingId = "typing-spinner";
-      appendMessage(`Typing<span class="spinner"></span>`, "bot", typingId);
+    const typingId = "typing-spinner";
+    appendMessage(`<span id="response-stream"></span><span class="spinner"></span>`, "bot", typingId);
 
-      const startTime = performance.now();
+    const startTime = performance.now();
 
-      fetch(apiEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: text })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const endTime = performance.now();
-        const duration = ((endTime - startTime) / 1000).toFixed(2);
-        const reply = data.response || "❌ No response received.";
+    fetch(apiEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: text })
+    })
+    .then(async (res) => {
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
 
-        const typingElement = document.getElementById(typingId);
-        if (typingElement) typingElement.remove();
+      const responseSpan = document.getElementById("response-stream");
+      let finalText = "";
 
-        appendMessage(`${reply}<br><br>⏱️ <i>Response time: ${duration} seconds</i>`, "bot");
-      })
-      .catch(err => {
-        console.error("Error:", err);
-        const typingElement = document.getElementById(typingId);
-        if (typingElement) typingElement.remove();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-        appendMessage("❌ Failed to reach the assistant.", "bot");
-      });
-    }
-  </script>
+        const chunk = decoder.decode(value);
+        finalText += chunk;
+        responseSpan.innerHTML += chunk.replace(/\n/g, "<br>");
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      const endTime = performance.now();
+      const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+      const typingElement = document.getElementById(typingId);
+      if (typingElement) {
+        typingElement.innerHTML += `<br><br>⏱️ <i>Response time: ${duration} seconds</i>`;
+      }
+    })
+    .catch(err => {
+      console.error("Streaming error:", err);
+      const typingElement = document.getElementById(typingId);
+      if (typingElement) typingElement.remove();
+      appendMessage("❌ Failed to reach the assistant.", "bot");
+    });
+  }
+</script>
 
 </body>
 </html>
