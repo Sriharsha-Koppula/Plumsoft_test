@@ -121,15 +121,7 @@
 <body>
 
   <div class="header"><span class="shiny">💬 Welcome to Plumsoft Assistant</span></div>
-
-  <div class="launch-wrapper">
-    <h2>🚀 We are getting ready to launch</h2>
-    <div id="countdown">
-      <span id="days">00</span>d :
-      <span id="hours">00</span>h :
-      <span id="minutes">00</span>m :
-      <span id="seconds">00</span>s
-    </div>
+  
   </div>
 
   <div class="chat-box" id="chatBox"></div>
@@ -184,29 +176,6 @@
         appendMessage("❌ Failed to reach the assistant.", "bot");
       });
     }
-
-    // Countdown Timer
-    const launchDate = new Date("June 20, 2025 00:00:00").getTime();
-
-    const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = launchDate - now;
-
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      document.getElementById("days").textContent = days.toString().padStart(2, "0");
-      document.getElementById("hours").textContent = hours.toString().padStart(2, "0");
-      document.getElementById("minutes").textContent = minutes.toString().padStart(2, "0");
-      document.getElementById("seconds").textContent = seconds.toString().padStart(2, "0");
-
-      if (distance < 0) {
-        clearInterval(timer);
-        document.querySelector(".launch-wrapper").innerHTML = "<h2>🎉 We have launched!</h2>";
-      }
-    }, 1000);
   </script>
 
 </body>
